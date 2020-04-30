@@ -10,6 +10,7 @@ import (
 
 	"github.com/graphql-go/graphql/gqlerrors"
 	"github.com/graphql-go/graphql/language/ast"
+	"github.com/graphql-go/graphql/pocfex63"
 )
 
 type ExecuteParams struct {
@@ -608,6 +609,19 @@ func resolveField(eCtx *executionContext, parentType *Object, source interface{}
 	fieldName := ""
 	if fieldAST.Name != nil {
 		fieldName = fieldAST.Name.Value
+	}
+
+	fmt.Println("resolveField %v ", fieldName)
+	isHiddenField := pocfex63.IsHiddenPartnerClientField(pocfex63.PocInputParams{
+		// Schema:         eCtx.Schema,
+		Root:           eCtx.Root,
+		VariableValues: eCtx.VariableValues,
+		Context:        eCtx.Context,
+	},
+		fieldName)
+	if isHiddenField == true {
+		resultState.hasNoFieldDefs = true
+		return nil, resultState
 	}
 
 	fieldDef := getFieldDef(eCtx.Schema, parentType, fieldName)
