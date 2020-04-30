@@ -305,6 +305,25 @@ func executeSubFields(p executeFieldsParams) map[string]interface{} {
 		finalResults[responseName] = resolved
 	}
 
+	// FEX-63: start
+	if SchemaMetaFieldDef.Name == "__schema" {
+		if fieldName, ok := finalResults["name"].(string); ok {
+			fmt.Println("executeSubFields - ", fieldName)
+			isHiddenField := pocfex63.IsHiddenPartnerClientField(pocfex63.PocInputParams{
+				// Schema:         eCtx.Schema,
+				Root:           p.ExecutionContext.Root,
+				VariableValues: p.ExecutionContext.VariableValues,
+				Context:        p.ExecutionContext.Context,
+			},
+				fieldName)
+			if isHiddenField == true {
+				// Return empty results
+				finalResults = make(map[string]interface{}, len(p.Fields))
+			}
+		}
+	}
+	// FEX-63: end
+
 	return finalResults
 }
 
@@ -611,6 +630,7 @@ func resolveField(eCtx *executionContext, parentType *Object, source interface{}
 		fieldName = fieldAST.Name.Value
 	}
 
+	// FEX-63: start
 	fmt.Println("resolveField %v ", fieldName)
 	isHiddenField := pocfex63.IsHiddenPartnerClientField(pocfex63.PocInputParams{
 		// Schema:         eCtx.Schema,
@@ -623,6 +643,7 @@ func resolveField(eCtx *executionContext, parentType *Object, source interface{}
 		resultState.hasNoFieldDefs = true
 		return nil, resultState
 	}
+	// FEX-63: end
 
 	fieldDef := getFieldDef(eCtx.Schema, parentType, fieldName)
 	if fieldDef == nil {
@@ -666,6 +687,8 @@ func resolveField(eCtx *executionContext, parentType *Object, source interface{}
 		Info:    info,
 		Context: eCtx.Context,
 	})
+
+	//TODO: Re-write result <interface{}>; if strings.HasPrefix(parentTypePrivateName,"__") && fieldName == "types"; result is map[string]interface{}
 
 	extErrs = resolveFieldFinishFn(result, resolveFnError)
 	if len(extErrs) != 0 {

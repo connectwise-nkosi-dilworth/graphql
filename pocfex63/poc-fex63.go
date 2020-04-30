@@ -31,6 +31,8 @@ var hideFieldsMap = []*HideFieldMap{
 			"sites",
 			"siteId",
 			"endpointId",
+			"Site",
+			"Endpoint",
 		},
 	},
 }
@@ -82,4 +84,11 @@ func IsHiddenPartnerClientField(p PocInputParams, fieldName string) bool {
 	}
 
 	return false
+}
+
+// RedoResultMap : take out hidden fields
+func RedoResultMap(p PocInputParams, inResult []interface{}) interface{} {
+	newResult := make([]interface{}, 1 /*len(*inResult)*/)
+
+	return newResult
 }

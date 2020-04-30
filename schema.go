@@ -200,6 +200,12 @@ func (gq *Schema) AppendType(objectType Type) error {
 	return gq.AddImplementation()
 }
 
+// SetQueryType: set query type
+func (gq *Schema) SetQueryType(queryType *Object) *Object {
+	gq.queryType = queryType
+	return gq.queryType
+}
+
 func (gq *Schema) QueryType() *Object {
 	return gq.queryType
 }
